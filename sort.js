@@ -46,22 +46,52 @@ function makeSortButton(label, sorter) {
   )
 }
 
+function makeSortDropDown(sorters) {
+  return h(
+    'select.sort', {
+      'ev-change': e => {
+        const i = Number(e.target.value)
+        criteria.set(sorters[i].sortf)
+      }
+    },
+    sorters.map(
+      ({label}, i) => h(
+        'option', {
+          attributes: {
+            value: i,
+            selected: computed(
+              [criteria],
+              c=> c==sorters[i].sortf ? 'selected' : undefined
+            )
+          }
+        }, 
+        label
+      ) 
+    )
+  )
+}
+
 document.body.appendChild(
   h('style', `
     .active {
       background: lightblue;
+    }
+    select.sort {
+      font-size: .6em;
     }
   `)
 )
 
 document.body.appendChild(
   h('div', [
-    makeSortButton('by Name', byName),
-    makeSortButton('by Number', byNumber),
+    makeSortDropDown([
+      {label: 'by Name',   sortf: byName},
+      {label: 'by Number', sortf: byNumber}
+    ]),
     h('.container', sortedElements)
   ])
 )
 
 arr.push({a:15, n:'foo'}) // calls render
 items[2].set({a:80, n:'d'}) 
-
+criteria.set(byName)
