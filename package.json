@@ -1,0 +1,24 @@
+{
+  "name": "@regular/tre-ui",
+  "version": "1.0.0",
+  "description": "display an ssb message thread in a tree-view",
+  "main": "index.js",
+  "scripts": {
+    "sort": "budo sort.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "treeview",
+    "ssb"
+  ],
+  "author": "Jan Bölsche <jan@lagomorph.de> (http://regular.codes/)",
+  "license": "ISC",
+  "dependencies": {
+    "mutant": "^3.22.1",
+    "setimmediate": "^1.0.5"
+  },
+  "devDependencies": {
+    "browserify": "^16.2.0",
+    "budo": "^11.2.0"
+  }
+}
