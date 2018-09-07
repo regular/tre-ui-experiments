@@ -7,9 +7,9 @@ const watch = require('mutant/watch')
 const computed = require('mutant/computed')
 
 const items = [
-  Value({a:30, n:'a'}),
-  Value({a:10, n:'c'}),
-  Value({a:20, n:'b'})
+  Value({id: 0, a:30, n:'a'}),
+  Value({id: 1, a:10, n:'c'}),
+  Value({id: 2, a:20, n:'b'})
 ]
 
 const byName = (a,b) => a.n == b.n ? 0 : a.n > b.n ? 1 : -1
@@ -23,7 +23,47 @@ function comparer(a, b) {
 
 function render(x) {
   console.log(`render ${x.a, x.n}`)
-  return h(`div.bla-${x.n}`, `${x.a}: ${x.n}`)
+  return h(
+    `div.bla-${x.n}`, {
+      draggable: true,
+      //'data-id': x.id,
+      'ev-dragstart': e => {
+        e.target.classList.add('dragged')
+        e.dataTransfer.setData('text/plain', x.id);
+      },
+      'ev-dragend': e => {
+        e.target.classList.remove('dragged')
+        const els = document.body.querySelectorAll('[draggable].over')
+        ;[].slice.call(els).forEach( el=>el.classList.remove('over'))
+      },
+      'ev-dragenter': e => e.target.classList.add('over'),
+      'ev-dragleave': e => e.target.classList.remove('over'),
+      'ev-dragover': e => {
+        e.preventDefault()
+        e.dataTransfer.dropEffect = 'move'
+        const bb = e.target.getBoundingClientRect()
+        const rely = (e.clientY - bb.top) / bb.height
+        let cls = ['above', 'below']
+        if (rely > 0.5) cls = cls.reverse()
+        e.target.classList.add(cls[0])
+        e.target.classList.remove(cls[1])
+        return false
+      },
+      'ev-drop': e => {
+        e.stopPropagation()
+        const dropped_id = e.dataTransfer.getData('text/plain')
+        const where = e.target.classList.contains('above') ? 'above' : 'below'
+        if (`${dropped_id}` == `${x.id}`) {
+          console.log(`dropped ${x.id} onto itself.`)
+          return false
+        }
+        sortedArray.find( o=>String(o.id)==dropped_id)
+        console.log(`dropped ${dropped_id} ${where} ${x.id}`)
+        return false
+      }
+    },
+    `#${x.id} / ${x.a}: ${x.n}`
+  )
 }
 
 const arr = MutantArray(items)
@@ -79,6 +119,24 @@ document.body.appendChild(
     select.sort {
       font-size: .6em;
     }
+    [draggable] {
+      user-select: none;
+      cursor: move;
+    }
+    [draggable].dragged {
+      opacity: 0.3
+    }
+    [draggable].over {
+      //border: 1px dashed black;
+    }
+    [draggable].over.above {
+      border-top: 1em solid blue;
+      //padding-top: 1em;
+    }
+    [draggable].over.below {
+      border-bottom: 1em solid blue;
+      //padding-bottom: 1em;
+    }
   `)
 )
 
@@ -92,6 +150,6 @@ document.body.appendChild(
   ])
 )
 
-arr.push({a:15, n:'foo'}) // calls render
-items[2].set({a:80, n:'d'}) 
+arr.push({id: 'new', a:15, n:'foo'}) // calls render
+items[2].set({id:2, a:80, n:'d'}) 
 criteria.set(byName)
