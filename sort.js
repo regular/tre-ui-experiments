@@ -32,7 +32,7 @@ function render(x) {
   console.log(`render ${x.a, x.n}`)
   return h(
     `div.bla-${x.n}`, {
-      draggable: true,
+      draggable: computed([criteria], c => c == byNumber ),
       //'data-id': x.id,
       'ev-dragstart': e => {
         e.target.classList.add('dragged')
@@ -133,7 +133,7 @@ document.body.appendChild(
   h('div', [
     makeSortDropDown([
       {label: 'by Name',   sortf: byName},
-      {label: 'by Number', sortf: byNumber}
+      {label: 'custom', sortf: byNumber}
     ]),
     h('.container', sortedElements)
   ])
@@ -151,7 +151,7 @@ document.body.appendChild(
     select.sort {
       font-size: .6em;
     }
-    [draggable] {
+    [draggable=true] {
       user-select: none;
       cursor: move;
     }
@@ -175,13 +175,15 @@ document.body.appendChild(
 // returns the mid-value between a and b, but reduce the number of
 // fragment digits
 function middle(upper, lower) {
+  if (lower > upper) throw new Error('lower > upper')
   let m = (lower + upper) / 2
-  let digits = 0
   let c = Math.round(m)
+  let digits = 0
   while(c <= lower || c >= upper)  {
     digits++
     let p = Math.pow(10, digits)
     c = Math.round(m * p) / p
+    console.log(digits, c)
   } 
   return c
 }
