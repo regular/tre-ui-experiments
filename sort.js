@@ -82,7 +82,8 @@ function render(x) {
           return o().id == dropped_id
         })
         if (!droppedObv) throw new Error('dropped_id not found in mutantArray')
-        droppedObv.set(Object.assign({}, droppedObv(), {a: (upper + lower) / 2})) 
+
+        droppedObv.set(Object.assign({}, droppedObv(), {a: middle(upper,lower)})) 
         return false
       }
     },
@@ -171,3 +172,16 @@ document.body.appendChild(
   `)
 )
 
+// returns the mid-value between a and b, but reduce the number of
+// fragment digits
+function middle(upper, lower) {
+  let m = (lower + upper) / 2
+  let digits = 0
+  let c = Math.round(m)
+  while(c <= lower || c >= upper)  {
+    digits++
+    let p = Math.pow(10, digits)
+    c = Math.round(m * p) / p
+  } 
+  return c
+}
